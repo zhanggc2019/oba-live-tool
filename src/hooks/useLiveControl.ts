@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
+import { stopLiveVoiceSession } from '@/services/voice/runtime'
 import { EVENTS, eventEmitter } from '@/utils/events'
 import { useAccounts } from './useAccounts'
 
@@ -51,11 +52,13 @@ export const useLiveControlStore = create<LiveControlStore>()(
         contexts: {
           default: defaultContext(),
         },
-        setIsConnected: (accountId, connected) =>
+        setIsConnected: (accountId, connected) => {
+          if (connected !== 'connected') stopLiveVoiceSession(accountId)
           set(state => {
             const context = ensureContext(state, accountId)
             context.isConnected = connected
-          }),
+          })
+        },
         setAccountName: (accountId, name) =>
           set(state => {
             const context = ensureContext(state, accountId)

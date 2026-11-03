@@ -1,4 +1,4 @@
-import { BugIcon, ExternalLinkIcon, FileTextIcon, Trash2Icon } from 'lucide-react'
+import { ExternalLinkIcon, FileTextIcon, Trash2Icon } from 'lucide-react'
 import { IPC_CHANNELS } from 'shared/ipcChannels'
 import { SimpleIconsGithub } from '@/components/icons/simpleIcons'
 import { Button } from '@/components/ui/button'
@@ -17,13 +17,6 @@ export function OtherSetting() {
     await window.ipcRenderer.invoke(
       IPC_CHANNELS.app.openExternal,
       'https://github.com/qiutongxue/oba-live-tool',
-    )
-  }
-
-  const handleOpenIssues = async () => {
-    await window.ipcRenderer.invoke(
-      IPC_CHANNELS.app.openExternal,
-      'https://github.com/qiutongxue/oba-live-tool/issues',
     )
   }
 
@@ -74,17 +67,12 @@ export function OtherSetting() {
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h4 className="text-sm font-medium leading-none">项目信息</h4>
-              <p className="text-sm text-muted-foreground">了解更多项目相关内容</p>
+              <p className="text-sm text-muted-foreground">查看原项目开源信息</p>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" className="gap-2" onClick={handleOpenGitHub}>
                 <SimpleIconsGithub className="h-4 w-4" />
-                GitHub
-                <ExternalLinkIcon className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="sm" className="gap-2" onClick={handleOpenIssues}>
-                <BugIcon className="h-4 w-4" />
-                反馈问题
+                原项目源码
                 <ExternalLinkIcon className="h-4 w-4" />
               </Button>
             </div>

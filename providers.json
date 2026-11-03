@@ -3,10 +3,7 @@
     "name": "DeepSeek",
     "baseURL": "https://api.deepseek.com",
     "apiUrl": "https://platform.deepseek.com/api_keys",
-    "models": [
-      "deepseek-flash",
-      "deepseek-v4-pro"
-    ]
+    "models": ["deepseek-flash", "deepseek-v4-pro"]
   },
   "openrouter": {
     "name": "OpenRouter",
@@ -33,6 +30,7 @@
     "baseURL": "https://api.siliconflow.cn/v1",
     "apiUrl": "https://cloud.siliconflow.cn/account/ak",
     "models": [
+      "Qwen/Qwen3-8B",
       "deepseek-ai/DeepSeek-V4.1-Flash",
       "deepseek-ai/DeepSeek-V4-Flash",
       "deepseek-ai/DeepSeek-V4-Pro",
@@ -55,7 +53,7 @@
     "models": []
   },
   "custom": {
-    "name": "自定义",
+    "name": "其他 OpenAI 兼容服务",
     "baseURL": "",
     "apiUrl": "",
     "models": []

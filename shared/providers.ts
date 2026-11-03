@@ -35,6 +35,7 @@ export const providers: Record<string, ProviderInfo> = {
     baseURL: 'https://api.siliconflow.cn/v1',
     apiUrl: 'https://cloud.siliconflow.cn/account/ak',
     models: [
+      'Qwen/Qwen3-8B',
       'deepseek-ai/DeepSeek-V3.2',
       'Pro/deepseek-ai/DeepSeek-V3.2',
       'deepseek-ai/DeepSeek-V3.1-Terminus',
@@ -57,5 +58,49 @@ export const providers: Record<string, ProviderInfo> = {
     apiUrl: 'https://console.volcengine.com/ark/region:ark+cn-beijing/apiKey',
     models: [],
   },
-  custom: { name: '自定义', baseURL: '', apiUrl: '', models: [] },
+  custom: { name: '其他 OpenAI 兼容服务', baseURL: '', apiUrl: '', models: [] },
+}
+
+/** 合并在线目录与内置入口，防止旧缓存或远端列表覆盖本地新增的 Qwen 模型。 */
+export function mergeProviders(
+  data: Record<string, ProviderInfo> = {},
+): Record<string, ProviderInfo> {
+  const merged = { ...providers, ...data }
+  merged.siliconflow = {
+    ...providers.siliconflow,
+    ...data.siliconflow,
+    models: [
+      ...new Set(['Qwen/Qwen3-8B', ...(data.siliconflow?.models ?? providers.siliconflow.models)]),
+    ],
+  }
+  merged.custom = providers.custom
+  return merged
+}
+
+/** 规范化兼容接口地址；允许粘贴完整聊天端点，也兼容本机 HTTP 模型服务。 */
+export function normalizeChatBaseURL(value: string): string {
+  let url: URL
+  try {
+    url = new URL(value.trim())
+  } catch {
+    throw new Error('请填写完整的接口地址，例如 https://api.example.com/v1')
+  }
+  if (
+    !['http:', 'https:'].includes(url.protocol) ||
+    url.username ||
+    url.password ||
+    url.search ||
+    url.hash
+  )
+    throw new Error('接口地址仅支持 HTTP/HTTPS，不能包含账号密码、查询参数或片段')
+  const pathname = url.pathname.replace(/\/+$/, '').replace(/\/chat\/completions$/, '')
+  return `${url.origin}${pathname}`
+}
+
+/** 为硅基流动 Qwen3-8B 关闭深度思考，减少直播问答等待；其他模型保持标准请求。 */
+export function getChatModelOptions(
+  provider: string,
+  model: string,
+): { enable_thinking?: boolean } {
+  return provider === 'siliconflow' && model === 'Qwen/Qwen3-8B' ? { enable_thinking: false } : {}
 }

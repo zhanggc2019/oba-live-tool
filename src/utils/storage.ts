@@ -19,6 +19,7 @@ export const STORAGE_KEYS = {
   AUTO_POPUP: 'auto-popup-storage',
   LIVE_CONTROL: 'live-control-storage',
   CHROME_CONFIG: 'chrome-config',
+  VOICE_CONFIG: 'voice-config',
 
   // 全局配置（不按账号存储）
   AI_CHAT: 'ai-chat-storage',
@@ -45,6 +46,7 @@ const ACCOUNT_BASED_STORAGE_KEYS = [
   STORAGE_KEYS.AUTO_POPUP,
   STORAGE_KEYS.LIVE_CONTROL,
   STORAGE_KEYS.CHROME_CONFIG,
+  STORAGE_KEYS.VOICE_CONFIG,
 ]
 
 /**

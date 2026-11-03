@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { app } from 'electron'
-import { providers as defaultProviders } from 'shared/providers'
+import { providers as defaultProviders, mergeProviders } from 'shared/providers'
 import { emitter } from '#/event/eventBus'
 import { createLogger } from '#/logger'
 
@@ -52,7 +52,7 @@ export class ProviderService {
     try {
       const data = await fs.readFile(this.cachePath, 'utf-8')
       const cached = JSON.parse(data)
-      this._providers = { ...defaultProviders, ...cached }
+      this._providers = mergeProviders(cached)
       this.logger.debug('已从本地缓存加载 providers')
     } catch {
       this.logger.verbose('未找到 providers 缓存，将使用内置默认配置')
@@ -70,7 +70,7 @@ export class ProviderService {
           throw new Error(`HTTP ${response.status} ${response.statusText}`)
         }
         const data: Record<string, ProviderInfo> = await response.json()
-        this._providers = { ...defaultProviders, ...data }
+        this._providers = mergeProviders(data)
         await fs.writeFile(this.cachePath, JSON.stringify(this._providers, null, 2), 'utf-8')
         emitter.emit('providers-updated', this._providers)
         this.logger.success(`已从 CDN 更新 providers: ${url}`)

@@ -13,10 +13,10 @@ import {
 import { Toaster } from '@/components/ui/toaster'
 import { useDevMode } from '@/hooks/useDevMode'
 import { Header } from './components/common/Header'
+import { VoiceStatusBar } from './components/common/VoiceStatusBar'
 import { useIpcListener } from './hooks/useIpc'
 import './App.css'
 import { useEffect } from 'react'
-import { UpdateDialog } from './components/update/UpdateDialog'
 import { useAccounts } from './hooks/useAccounts'
 import { useAutoMessageStore } from './hooks/useAutoMessage'
 import { useAutoPopUpStore } from './hooks/useAutoPopUp'
@@ -24,7 +24,6 @@ import { useAutoReply, useAutoReplyStore } from './hooks/useAutoReply'
 import { useChromeConfigStore } from './hooks/useChromeConfig'
 import { useLiveControlStore } from './hooks/useLiveControl'
 import { useToast } from './hooks/useToast'
-import { useUpdateConfigStore, useUpdateStore } from './hooks/useUpdate'
 
 function useGlobalIpcListener() {
   const { handleComment } = useAutoReply()
@@ -33,8 +32,6 @@ function useGlobalIpcListener() {
   const setIsRunningAutoMessage = useAutoMessageStore(s => s.setIsRunning)
   const setIsRunningAutoPopUp = useAutoPopUpStore(s => s.setIsRunning)
   const setStorageState = useChromeConfigStore(s => s.setStorageState)
-  const enableAutoCheckUpdate = useUpdateConfigStore(s => s.enableAutoCheckUpdate)
-  const handleUpdate = useUpdateStore.use.handleUpdate()
   const { toast } = useToast()
 
   useIpcListener(IPC_CHANNELS.tasks.autoReply.showComment, ({ comment, accountId }) => {
@@ -43,6 +40,8 @@ function useGlobalIpcListener() {
 
   useIpcListener(IPC_CHANNELS.tasks.liveControl.disconnectedEvent, id => {
     setIsConnected(id, 'disconnected')
+    useAutoReplyStore.getState().setIsRunning(id, false)
+    setIsListening(id, 'stopped')
     toast.error('直播控制台已断开连接')
   })
 
@@ -67,12 +66,6 @@ function useGlobalIpcListener() {
   useIpcListener(IPC_CHANNELS.tasks.liveControl.notifyAccountName, params => {
     if (params.ok) {
       setAccountName(params.accountId, params.accountName || '')
-    }
-  })
-
-  useIpcListener(IPC_CHANNELS.app.notifyUpdate, info => {
-    if (enableAutoCheckUpdate) {
-      handleUpdate(info)
     }
   })
 }
@@ -105,6 +98,7 @@ function App() {
           <div className="flex flex-col h-screen bg-gray-50">
             {/* 头部标题 */}
             <Header />
+            <VoiceStatusBar />
 
             {/* 主体内容 */}
             <div className="flex-1 flex overflow-hidden">
@@ -122,7 +116,6 @@ function App() {
               <LogDisplayer />
             </div>
           </div>
-          <UpdateDialog />
         </ContextMenuTrigger>
         {devMode && (
           <ContextMenuContent>

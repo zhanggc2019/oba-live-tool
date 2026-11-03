@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { IPC_CHANNELS } from 'shared/ipcChannels'
-import { providers as defaultProviders } from 'shared/providers'
+import { providers as defaultProviders, mergeProviders } from 'shared/providers'
 import { create } from 'zustand'
 import { createSelectors } from '@/utils/zustand'
 
@@ -29,7 +29,7 @@ export function useProviders(): Record<string, ProviderInfo> {
     // 从主进程获取 providers（可能是缓存或 GitHub 返回的最新数据）
     window.ipcRenderer.invoke(IPC_CHANNELS.app.getProviders).then(data => {
       if (data) {
-        store.setState({ providers: data, loaded: true })
+        store.setState({ providers: mergeProviders(data), loaded: true })
       }
     })
   }, [loaded])
@@ -40,7 +40,7 @@ export function useProviders(): Record<string, ProviderInfo> {
       IPC_CHANNELS.app.providersUpdated,
       (data: Record<string, ProviderInfo>) => {
         if (data) {
-          store.setState({ providers: data })
+          store.setState({ providers: mergeProviders(data) })
         }
       },
     )

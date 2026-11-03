@@ -1,6 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-  "appId": "com.qbw.obalivetool",
+  "appId": "com.xinghe.ai.live",
+  "productName": "星河AI直播",
   "asar": true,
   "directories": {
     "output": "release/${version}"

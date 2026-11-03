@@ -34,6 +34,7 @@ interface AIProviderStore {
   setApiKey: (type: AIConfigType, provider: AIProvider, key: string) => void
 }
 
+/** 创建默认文本配置，并记住每个厂商上次选择的模型。 */
 const createDefaultConfig = (): ProviderConfig => {
   const modelPreferences = Object.keys(providers).reduce(
     (acc, provider) => {
@@ -50,6 +51,7 @@ const createDefaultConfig = (): ProviderConfig => {
   }
 }
 
+/** 为内置厂商初始化空密钥，不改变已有持久化配置。 */
 const createDefaultApiKeys = (): APIKeys => {
   return Object.keys(providers).reduce(
     (acc, provider) => {
@@ -60,6 +62,7 @@ const createDefaultApiKeys = (): APIKeys => {
   )
 }
 
+/** AI 助手和直播回复分别保存模型、密钥与第三方接口地址。 */
 const createDefaultAIConfig = (): AIConfig => ({
   config: createDefaultConfig(),
   apiKeys: createDefaultApiKeys(),
@@ -81,7 +84,11 @@ export const useAIProviderStore = create<AIProviderStore>()(
           set(state => {
             const currentConfig = state[type].config
             if (config.provider) {
-              const newModel = config.model || currentConfig.modelPreferences[config.provider]
+              const newModel =
+                config.model ??
+                currentConfig.modelPreferences[config.provider] ??
+                providers[config.provider]?.models[0] ??
+                ''
               state[type].config.provider = config.provider
               state[type].config.model = newModel
               state[type].config.modelPreferences[config.provider] = newModel
@@ -121,6 +128,7 @@ export const useAIProviderStore = create<AIProviderStore>()(
   ),
 )
 
+/** 为指定功能提供独立的大模型设置与更新方法。 */
 export function useAIProvider(type: AIConfigType) {
   const store = useAIProviderStore()
   const props = store[type]

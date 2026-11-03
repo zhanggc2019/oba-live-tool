@@ -5,7 +5,6 @@ import { fileURLToPath } from 'node:url'
 import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import { IPC_CHANNELS } from 'shared/ipcChannels'
 import { emitter } from './event/eventBus'
-import { updateManager } from './managers/UpdateManager'
 import { providerService } from './services/ProviderService'
 import windowManager from './windowManager'
 import './ipc'
@@ -76,7 +75,7 @@ app.commandLine.appendSwitch('remote-debugging-port', '9222')
 if (os.release().startsWith('6.1')) app.disableHardwareAcceleration()
 
 // Set application name for Windows 10+ notifications
-if (process.platform === 'win32') app.setAppUserModelId(app.getName())
+if (process.platform === 'win32') app.setAppUserModelId('com.xinghe.ai.live')
 
 if (!app.requestSingleInstanceLock()) {
   app.quit()
@@ -89,13 +88,14 @@ const indexHtml = path.join(RENDERER_DIST, 'index.html')
 
 async function createWindow() {
   win = new BrowserWindow({
-    title: `OBA 直播工具 - v${app.getVersion()}`,
+    title: `星河AI直播 - v${app.getVersion()}`,
     width: 1280,
     height: 800,
     autoHideMenuBar: app.isPackaged,
     icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
     webPreferences: {
       preload,
+      backgroundThrottling: false, // 最小化后继续处理直播回复和语音队列
       // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
       // nodeIntegration: true,
       nodeIntegration: process.env.NODE_ENV === 'development',
@@ -115,11 +115,6 @@ async function createWindow() {
   } else {
     win.loadFile(indexHtml)
   }
-
-  // 加载完成后检查更新
-  win.webContents.on('did-finish-load', async () => {
-    await updateManager.silentCheckForUpdate()
-  })
 
   // Make all links open with the browser, not with the application
   win.webContents.setWindowOpenHandler(({ url }) => {

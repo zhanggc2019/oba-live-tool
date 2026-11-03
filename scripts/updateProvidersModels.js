@@ -39,6 +39,7 @@ async function fetchOpenrouterModels(baseURL) {
   return filteredModels
 }
 
+/** 获取硅基流动文本模型，保留 Qwen3-8B 并排除语音、视觉和向量专用模型。 */
 async function fetchSiliconflowModels(baseURL) {
   const apiKey = process.env.SILICONFLOW_API_KEY
   if (!apiKey) {
@@ -48,10 +49,14 @@ async function fetchSiliconflowModels(baseURL) {
   const openai = new OpenAI({ baseURL, apiKey })
   const models = await openai.models.list()
   const filteredModels = models.data
-    .filter(model => model.id.toLowerCase().includes('deepseek'))
+    .filter(
+      model =>
+        /deepseek|qwen/i.test(model.id) &&
+        !/embedding|rerank|ocr|(?:^|-)vl(?:-|$)|audio|tts|omni/i.test(model.id),
+    )
     .map(model => model.id)
   console.log(`硅基流动: 获取到 ${filteredModels.length} 个模型`)
-  return filteredModels
+  return [...new Set(['Qwen/Qwen3-8B', ...filteredModels])]
 }
 
 const updaters = [

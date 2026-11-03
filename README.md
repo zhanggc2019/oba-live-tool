@@ -1,7 +1,7 @@
 <div align="center">
 
   <img src="./public/favicon.png" alt="logo" width="256px" height="auto">
-  <h1> oba live tool </h1>
+  <h1>星河AI直播</h1>
   <p> 抖音小店/巨量百应/抖音团购/小红书/视频号/快手小店/淘宝直播小工具 </p>
   <br>
 
@@ -32,6 +32,8 @@
 💃 **AI 自动回复**：实时监听直播互动评论、自动生成回复内容（仅限抖音小店/巨量百应/视频号/小红书）
 
 🤖 **AI 智能助理**：接入 DeepSeek，支持官方、OpenRouter、硅基流动、火山引擎等所有支持 openai chat接口的提供商
+
+🎙️ **直播语音播报**：选择首段讲解底稿，结合商品要素在播放过程中持续生成不同角度的新文案并接续播报；支持 MiMo V2.5 TTS、蓝云 TTS（IndexTTS-2.5）、阿里千问 qwen-audio-3.1-tts-flash 及 OpenAI 兼容语音厂商。AI 答案支持文字、语音或两者同时输出，可选择声卡接入直播软件。[设置与使用说明](./docs/live-voice.md)
 
 ## 🚀 快速开始
 

@@ -1,4 +1,4 @@
-import { SendHorizontalIcon } from 'lucide-react'
+import { SendHorizontalIcon, Volume2 } from 'lucide-react'
 import { IPC_CHANNELS } from 'shared/ipcChannels'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -6,6 +6,8 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { useAccounts } from '@/hooks/useAccounts'
 import { type MessageOf, useAutoReply } from '@/hooks/useAutoReply'
+import { useToast } from '@/hooks/useToast'
+import { previewVoice } from '@/services/voice/runtime'
 
 export default function PreviewList({
   setHighLight,
@@ -14,6 +16,15 @@ export default function PreviewList({
 }) {
   const { replies, comments } = useAutoReply()
   const { currentAccountId } = useAccounts()
+  const { toast } = useToast()
+  /** 将已生成答案加入语音队列，可在未启用自动发送时手动试听。 */
+  const handleSpeak = (content: string) => {
+    try {
+      previewVoice(currentAccountId, content)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : '无法播放语音')
+    }
+  }
   const handleSendReply = async (replyContent: string, _commentId: string) => {
     try {
       await window.ipcRenderer.invoke(
@@ -61,6 +72,14 @@ export default function PreviewList({
                       )}
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-gray-700 flex-1">{reply.replyContent}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="语音播放"
+                          onClick={() => handleSpeak(reply.replyContent)}
+                        >
+                          <Volume2 className="h-4 w-4" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"

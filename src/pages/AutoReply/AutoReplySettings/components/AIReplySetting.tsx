@@ -1,11 +1,20 @@
 import { useId } from 'react'
+import { Link } from 'react-router'
 import AIModelInfo from '@/components/ai-chat/AIModelInfo'
 import { APIKeyDialog } from '@/components/ai-chat/APIKeyDialog'
 import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { useAutoReplyConfig } from '@/hooks/useAutoReplyConfig'
 
+/** 配置 AI 回复输出方式，并复用直播话术中的参考资料。 */
 export function AIReplySetting() {
   const { config, updateAIReplySettings } = useAutoReplyConfig()
   const aiReplyEnabled = config.comment.aiReply.enable
@@ -57,6 +66,38 @@ export function AIReplySetting() {
       </div>
       {aiReplyEnabled && (
         <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="ai-output-mode">回复方式</Label>
+            <Select
+              value={config.comment.aiReply.outputMode}
+              onValueChange={value =>
+                updateAIReplySettings({ outputMode: value as 'text' | 'voice' | 'both' })
+              }
+            >
+              <SelectTrigger id="ai-output-mode">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="text">文字回复</SelectItem>
+                <SelectItem value="voice">语音播报</SelectItem>
+                <SelectItem value="both">文字 + 语音</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              自动发送控制上述输出方式。语音需先在「直播话术」开始播报；关闭自动发送时仍可在回复预览中手动播放。关键词规则仍优先按文字回复。
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Switch
+              id="ai-use-reference"
+              checked={config.comment.aiReply.useReference}
+              onCheckedChange={checked => updateAIReplySettings({ useReference: checked })}
+            />
+            <Label htmlFor="ai-use-reference">使用产品资料与参考话术回答</Label>
+            <Link className="text-sm text-primary underline" to="/live-speech">
+              编辑资料
+            </Link>
+          </div>
           <div className="flex items-center space-x-2">提示词配置</div>
           <Textarea
             placeholder="输入AI提示词..."

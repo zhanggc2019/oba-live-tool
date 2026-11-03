@@ -1,5 +1,6 @@
+import { AudioLines, NotebookPen } from 'lucide-react'
 import { NavLink } from 'react-router'
-import { abilities, autoReplyPlatforms } from '@/abilities'
+import { autoReplyPlatforms } from '@/abilities'
 import { useCurrentAutoMessage } from '@/hooks/useAutoMessage'
 import { useCurrentAutoPopUp } from '@/hooks/useAutoPopUp'
 import { useAutoReply } from '@/hooks/useAutoReply'
@@ -30,6 +31,8 @@ export default function Sidebar() {
   const platform = useCurrentLiveControl(context => context.platform)
 
   const tabs: SidebarTab[] = [
+    { id: '/live-speech', name: '直播话术', icon: <NotebookPen className="w-5 h-5" /> },
+    { id: '/tts-settings', name: '音色克隆', icon: <AudioLines className="w-5 h-5" /> },
     {
       id: '/',
       name: '打开中控台',

@@ -1,4 +1,5 @@
 import OpenAI, { AuthenticationError, NotFoundError } from 'openai'
+import { getChatModelOptions, normalizeChatBaseURL } from 'shared/providers'
 import { createLogger } from '#/logger'
 import { providerService } from '#/services/ProviderService'
 
@@ -38,33 +39,47 @@ export class AIChatService {
     this.openai = new OpenAI({ apiKey, baseURL })
   }
 
+  /** 所有文本入口共用同一厂商配置，兼容第三方 Chat Completions 地址。 */
   public static createService(apiKey: string, provider: ProviderType, customBaseURL?: string) {
     let baseURL: string
     if (provider === 'custom') {
       if (!customBaseURL) {
         throw new Error('使用自定义 provider 请提供 baseURL')
       }
-      baseURL = customBaseURL
+      baseURL = normalizeChatBaseURL(customBaseURL)
     } else {
-      baseURL = providerService.providers[provider].baseURL
+      const info = providerService.providers[provider]
+      if (!info) throw new Error('所选模型提供商不存在，请重新配置')
+      baseURL = info.baseURL
     }
 
-    return new AIChatService(apiKey, baseURL, provider)
+    return new AIChatService(apiKey.trim(), baseURL, provider)
   }
 
-  public async *chatStream(messages: ChatMessage[], model: string) {
+  /** 生成文本流；长话术可指定输出预算与取消信号，普通聊天保持原行为。 */
+  public async *chatStream(
+    messages: ChatMessage[],
+    model: string,
+    options?: { signal: AbortSignal; maxTokens: number },
+  ) {
     try {
       this.logger.debug('流式 chatStream 请求', { model })
-      const stream = await this.openai.chat.completions.create({
-        model,
-        messages,
-        stream: true,
-      })
+      const stream = await this.openai.chat.completions.create(
+        {
+          model,
+          messages,
+          stream: true,
+          ...getChatModelOptions(this.provider, model),
+          ...(options ? { max_tokens: options.maxTokens } : {}),
+        },
+        options ? { signal: options.signal, maxRetries: 0 } : undefined,
+      )
 
       let contentLength = 0
       let reasoningLength = 0
 
       for await (const chunk of stream) {
+        if (!chunk.choices.length) continue
         const delta = chunk.choices[0].delta
         const { content, reasoning_content: reasoning } = delta as typeof delta & {
           reasoning_content?: string
@@ -76,6 +91,7 @@ export class AIChatService {
         if (content || reasoning) {
           yield { content, reasoning }
         }
+        if (chunk.choices[0].finish_reason) yield { finishReason: chunk.choices[0].finish_reason }
       }
 
       this.logger.debug('chatStream 响应完成', {
@@ -88,6 +104,7 @@ export class AIChatService {
     }
   }
 
+  /** 使用标准非流式接口生成直播回复，并仅返回回答正文供 TTS 播放。 */
   public async chat(messages: ChatMessage[], model: string) {
     try {
       this.logger.debug('非流式 chat 请求', { model })
@@ -96,6 +113,7 @@ export class AIChatService {
         model,
         messages,
         stream: false,
+        ...getChatModelOptions(this.provider, model),
       })
 
       const output = response.choices[0].message.content ?? ''

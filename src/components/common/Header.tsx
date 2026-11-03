@@ -1,4 +1,3 @@
-import { Package } from 'lucide-react'
 import { AccountSwitcher } from './AccountSwitcher'
 
 export function Header() {
@@ -6,8 +5,8 @@ export function Header() {
     <header className="w-full bg-white shadow-xs px-6 flex h-16 items-center justify-between">
       {/* <div className=""> */}
       <div className="flex items-center gap-3">
-        <Package className="h-6 w-6 text-primary" />
-        <h1 className="text-lg font-semibold text-gray-800 sm:text-xl">直播助手</h1>
+        <img src="favicon.png" alt="" className="h-7 w-7" />
+        <h1 className="text-lg font-semibold text-gray-800 sm:text-xl">星河AI直播</h1>
       </div>
 
       <div className="flex items-center">

@@ -1,8 +1,26 @@
 import type { LogMessage } from 'electron-log'
 import type { ProgressInfo, UpdateDownloadedEvent } from 'electron-updater'
 import { IPC_CHANNELS } from './ipcChannels'
+import type { LiveScriptProgress, LiveScriptResult, ScriptRequest } from './liveScript'
+import type {
+  CloneVoiceRequest,
+  SpeechAudio,
+  SynthesisRequest,
+  TtsProviderId,
+  TtsVoice,
+  VoiceListRequest,
+} from './voice'
 
 export interface IpcChannels {
+  [IPC_CHANNELS.liveScript.generate]: (request: ScriptRequest) => LiveScriptResult
+  [IPC_CHANNELS.liveScript.progress]: (progress: LiveScriptProgress) => void
+  [IPC_CHANNELS.liveScript.cancel]: (requestId: string) => void
+  [IPC_CHANNELS.tts.synthesize]: (request: SynthesisRequest) => SpeechAudio
+  [IPC_CHANNELS.tts.cloneVoice]: (request: CloneVoiceRequest) => TtsVoice
+  [IPC_CHANNELS.tts.listVoices]: (request: VoiceListRequest) => TtsVoice[]
+  [IPC_CHANNELS.tts.cancel]: (requestId: string) => void
+  [IPC_CHANNELS.tts.hasKey]: (provider: TtsProviderId) => boolean
+  [IPC_CHANNELS.tts.saveKey]: (provider: TtsProviderId, key: string) => void
   // LiveControl
   [IPC_CHANNELS.tasks.liveControl.connect]: (params: {
     chromePath?: string

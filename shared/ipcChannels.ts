@@ -1,4 +1,17 @@
 export const IPC_CHANNELS = {
+  liveScript: {
+    generate: 'liveScript:generate',
+    progress: 'liveScript:progress',
+    cancel: 'liveScript:cancel',
+  },
+  tts: {
+    cloneVoice: 'tts:cloneVoice',
+    listVoices: 'tts:listVoices',
+    synthesize: 'tts:synthesize',
+    cancel: 'tts:cancel',
+    hasKey: 'tts:hasKey',
+    saveKey: 'tts:saveKey',
+  },
   tasks: {
     liveControl: {
       connect: 'tasks:liveControl:connect',

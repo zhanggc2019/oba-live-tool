@@ -22,6 +22,8 @@ interface AutoReplyBaseConfig {
       enable: boolean
       prompt: string
       autoSend: boolean
+      outputMode: 'text' | 'voice' | 'both'
+      useReference: boolean
     }
   }
   blockList: string[]
@@ -69,6 +71,8 @@ const createDefaultConfig = (): AutoReplyConfig => {
         enable: false,
         prompt: defaultPrompt,
         autoSend: false,
+        outputMode: 'text',
+        useReference: true,
       },
     },
     room_enter: {
@@ -159,6 +163,14 @@ export const useAutoReplyConfigStore = create<AutoReplyConfigStore>()(
     },
   ),
 )
+
+/** 按消息所属账号读取配置，避免切换页面账号后串用回复规则。 */
+export function getAutoReplyConfig(accountId: string): AutoReplyConfig {
+  return mergeWithoutArray(
+    createDefaultConfig(),
+    useAutoReplyConfigStore.getState().contexts[accountId]?.config ?? {},
+  )
+}
 
 export const useAutoReplyConfig = () => {
   const store = useAutoReplyConfigStore()

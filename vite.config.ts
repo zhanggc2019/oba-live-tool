@@ -85,15 +85,14 @@ export default defineConfig(({ command }) => {
         renderer: {},
       }),
     ],
-    server:
-      process.env.VSCODE_DEBUG &&
-      (() => {
-        const url = new URL(pkg.debug.env.VITE_DEV_SERVER_URL)
-        return {
-          host: url.hostname,
-          port: +url.port,
+    // 固定开发来源，端口被占用时明确报错，避免换端口后看不到原 localStorage。
+    server: process.env.VSCODE_DEBUG
+      ? {
+          host: new URL(pkg.debug.env.VITE_DEV_SERVER_URL).hostname,
+          port: Number(new URL(pkg.debug.env.VITE_DEV_SERVER_URL).port),
+          strictPort: true,
         }
-      })(),
+      : { host: 'localhost', port: 5173, strictPort: true },
     clearScreen: false,
   }
 })
